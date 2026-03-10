@@ -19,11 +19,13 @@ jobs:
       run: docker run -d -p 5000:5000 selfheal-app
 
     - name: Health check
+      id: health
       run: |
         sleep 10
         curl -f http://localhost:5000/health
+      continue-on-error: true
     - name: Rollback if deployment fails
-      if: failure()
+      if: steps.health.outcome  'failure'
       run: |
         echo "Deployment failed, rolling back..."
         git fetch --tags
