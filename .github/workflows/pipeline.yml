@@ -2,13 +2,15 @@ name: Self-Healing CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
+
     - name: Checkout code
       uses: actions/checkout@v3
 
@@ -24,8 +26,9 @@ jobs:
         sleep 10
         curl -f http://localhost:5000/health
       continue-on-error: true
+
     - name: Rollback if deployment fails
-      if: steps.health.outcome  'failure'
+      if: ${{ steps.health.outcome == 'failure' }}
       run: |
         echo "Deployment failed, rolling back..."
         git fetch --tags
