@@ -22,3 +22,8 @@ jobs:
       run: |
         sleep 10
         curl -f http://localhost:5000/health
+    - name: Rollback if deployment fails
+      if: failure()
+      run: |
+        echo "Deployment failed, rolling back..."
+        git checkout v1.0
