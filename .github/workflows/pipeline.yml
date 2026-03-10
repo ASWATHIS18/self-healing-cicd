@@ -26,4 +26,5 @@ jobs:
       if: failure()
       run: |
         echo "Deployment failed, rolling back..."
+        git fetch --tags
         git checkout v1.0
