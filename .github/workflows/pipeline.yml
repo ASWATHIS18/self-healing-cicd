@@ -12,7 +12,22 @@ jobs:
     steps:
 
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Configure Git
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "actions@github.com"
+
+    - name: Create automatic version tag
+      run: |
+        VERSION=v$(date +'%Y%m%d%H%M%S')
+        echo "Creating tag $VERSION"
+        git tag $VERSION
+        git push origin $VERSION
 
     - name: Build Docker image
       run: docker build -t selfheal-app .
@@ -30,6 +45,10 @@ jobs:
     - name: Rollback if deployment fails
       if: ${{ steps.health.outcome == 'failure' }}
       run: |
-        echo "Deployment failed, rolling back..."
+        echo "Deployment failed. Finding previous version..."
         git fetch --tags
-        git checkout v1.0
+
+        PREV_TAG=$(git tag --sort=-creatordate | sed -n '2p')
+
+        echo "Rolling back to $PREV_TAG"
+        git checkout $PREV_TAG
