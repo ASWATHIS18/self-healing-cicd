@@ -8,6 +8,7 @@ def home():
 
 @app.route("/health")
 def health():
-    return "FAIL",500
+    return "OK"
+
 
 app.run(host="0.0.0.0", port=5000)
